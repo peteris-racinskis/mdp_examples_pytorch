@@ -8,8 +8,8 @@ EPS=1e-9
 ENV="CartPole-v1"
 TRAIN=False
 # TRAIN=True
-OUTNAME=f"QMatrix_{time.time()}"
-INNAME=f"QMatrix_1669632540.9938576"
+OUTNAME=f"qmatrix_models/QMatrix"
+INNAME=f"qmatrix_mdoels/QMatrix"
 
 class QMatrix():
 
@@ -64,16 +64,12 @@ def rate_schedule(ep, decay, min_rate = 0.01, initial = 1.0):
     return max( min_rate, min( initial, math.exp(-decay*ep) ) )
 
 def train_matrix(model: QMatrix, env, save=True):
-
     for episode in range(4000):
         lr = rate_schedule(episode, 0.001)
         exploration_rate = rate_schedule(episode, 0.001)
         discount = 0.98
-
-
         done = False
         state_new, _ = env.reset()
-
         timestep = 0
         while not done and timestep < 2000:
             timestep += 1
@@ -82,19 +78,15 @@ def train_matrix(model: QMatrix, env, save=True):
             state_new, reward, done, _, __ = env.step(action)
             expected_reward = reward + model.expected_next_reward(state_new, discount)
             model.update_reward(expected_reward, state_old, action, lr)
-
         if episode % 50 == 0:
-            print(f"Training episode {episode} survived for {timestep} steps")
-        
+            print(f"Training episode {episode} survived for {timestep} steps")     
     if save:
         model.save()
 
 def visualize_matrix(filename=f"{INNAME}.pickle"):
     import gym
     qmat: QMatrix = QMatrix.load(filename)
-    env = gym.make(ENV, render_mode="human")
-
-    
+    env = gym.make(ENV, render_mode="human") 
     for ep in range(1000):
         state, _ = env.reset()
         done = False
@@ -105,8 +97,8 @@ def visualize_matrix(filename=f"{INNAME}.pickle"):
             state, _, done, __, ___ = env.step(action)
             env.render()
         print(f"Died at {step}")
-
     env.close()
+
 
 if __name__ == "__main__":
     if TRAIN:
