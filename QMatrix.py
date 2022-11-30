@@ -1,5 +1,4 @@
 from typing import Tuple
-import time
 import pickle
 import numpy as np
 import math
@@ -8,8 +7,8 @@ EPS=1e-9
 ENV="CartPole-v1"
 TRAIN=False
 # TRAIN=True
-OUTNAME=f"qmatrix_models/QMatrix"
-INNAME=f"qmatrix_mdoels/QMatrix"
+OUTNAME=f"qmatrix_models/QMatrix_new"
+INNAME=f"qmatrix_models/QMatrix"
 
 class QMatrix():
 
@@ -47,8 +46,8 @@ class QMatrix():
 
     def randomized_action(self, action_space, state, exploration_rate=0.001):
         if np.random.rand(1) < exploration_rate:
-            return action_space.sample()
-        return self.get_action(state)
+            return action_space.sample(), True
+        return self.get_action(state), False
     
     def save(self, filename=f"{OUTNAME}.pickle"):
         with open(filename, 'wb') as f:
@@ -74,7 +73,7 @@ def train_matrix(model: QMatrix, env, save=True):
         while not done and timestep < 2000:
             timestep += 1
             state_old = state_new
-            action = model.randomized_action(env.action_space, state_old, exploration_rate)
+            action, _ = model.randomized_action(env.action_space, state_old, exploration_rate)
             state_new, reward, done, _, __ = env.step(action)
             expected_reward = reward + model.expected_next_reward(state_new, discount)
             model.update_reward(expected_reward, state_old, action, lr)

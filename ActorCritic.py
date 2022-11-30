@@ -1,7 +1,6 @@
 import torch
 from torch.nn import Module, Linear, Sequential, ReLU, Softmax
 from torch.distributions import Categorical
-from torch.optim.sgd import SGD
 from torch.optim import Adam
 import torch.nn.functional as F
 import numpy as np
@@ -52,6 +51,15 @@ class ActorCriticModel(Module):
         self.losses = []
         self.died_ats = []
     
+    def get_action(self, state):
+        result = self.forward(state)
+        return result.sample().item()
+    
+    def randomized_action(self, action_space, state, exploration_rate=0.001):
+        if np.random.rand(1) < exploration_rate:
+            return action_space.sample(), True
+        return self.get_action(state), False
+
     def forward(self, x) -> ActorCriticResult:
         self.last_input = x
         hidden = self.hidden(x)
