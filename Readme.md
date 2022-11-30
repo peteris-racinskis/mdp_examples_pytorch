@@ -2,6 +2,6 @@
 
 ### QMatrix - an implementation of the classic Bellman equation through a fully enumerated reward matrix
 
-### ActorCritic - a simple deep Q learning approximator 
+### ActorCritic - a simple deep learning approach using the Advantage Actor-Critic architecture
 
 ### BehavioralClone - an imitation learning approach
