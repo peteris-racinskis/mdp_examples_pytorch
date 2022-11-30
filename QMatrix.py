@@ -2,6 +2,7 @@ from typing import Tuple
 import pickle
 import numpy as np
 import math
+from utils import visualize_model
 
 EPS=1e-9
 ENV="CartPole-v1"
@@ -82,22 +83,6 @@ def train_matrix(model: QMatrix, env, save=True):
     if save:
         model.save()
 
-def visualize_matrix(filename=f"{INNAME}.pickle"):
-    import gym
-    qmat: QMatrix = QMatrix.load(filename)
-    env = gym.make(ENV, render_mode="human") 
-    for ep in range(1000):
-        state, _ = env.reset()
-        done = False
-        step = 0
-        while not done and step < 4000:
-            step +=1 
-            action = qmat.get_action(state)
-            state, _, done, __, ___ = env.step(action)
-            env.render()
-        print(f"Died at {step}")
-    env.close()
-
 
 if __name__ == "__main__":
     if TRAIN:
@@ -114,4 +99,5 @@ if __name__ == "__main__":
         train_matrix(qmat, env, save=TRAIN)
         env.close()
     else:
-        visualize_matrix()
+        qmat = QMatrix.load(f"{INNAME}.pickle")
+        visualize_model(qmat)

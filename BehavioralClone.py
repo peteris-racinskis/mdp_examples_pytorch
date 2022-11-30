@@ -3,25 +3,26 @@ import numpy as np
 import torch.nn.functional as tf
 import pickle
 from os.path import exists
-from torch.nn import Module, Sequential, Linear, ReLU, LeakyReLU
+from torch.nn import Module, Sequential, Linear, ReLU
 from torch.utils.data import Dataset, DataLoader
-from torch.optim import Adam, SGD
+from torch.optim import Adam
 from torch.optim.lr_scheduler import MultiStepLR
 from ActorCritic import ActorCriticModel, INNAME
+from utils import visualize_model
 
 
 ENV="CartPole-v1"
-EPS_COLLECT_TRAIN=10000
-EPS_COLLECT_TEST=1000
+EPS_COLLECT_TRAIN=1000
+EPS_COLLECT_TEST=100
 MAX_EPS_COLLECT=10000
-PROB_RANDOM=0.00
-TRAIN_EPOCHS=6
-TRAIN=True
-# TRAIN=False
-TRAIN_DATASET_FNAME=f"expert_datasets/train_{EPS_COLLECT_TRAIN}"
-TEST_DATASET_FNAME=f"expert_datasets/test_{EPS_COLLECT_TEST}"
-OUTNAME_BASE="bc_models/BehavioralClone_"
-EVAL_NAME=""
+PROB_RANDOM=0.01
+TRAIN_EPOCHS=2
+# TRAIN=True
+TRAIN=False
+TRAIN_DATASET_FNAME=f"expert_datasets/train_{EPS_COLLECT_TRAIN}_expl_{PROB_RANDOM}"
+TEST_DATASET_FNAME=f"expert_datasets/test_{EPS_COLLECT_TEST}_expl_{PROB_RANDOM}"
+OUTNAME_BASE=f"bc_models/BehavioralClone_ds_{EPS_COLLECT_TRAIN}-{PROB_RANDOM}_epochs_{TRAIN_EPOCHS}_layers_"
+EVAL_NAME="bc_models/BehavioralClone_4-128-2.pth"
 
 
 class BehavioralClone(Module):
@@ -41,6 +42,9 @@ class BehavioralClone(Module):
         if not isinstance(x, torch.Tensor):
             x = torch.tensor(x)
         return self.action_head(self.hidden(x.to(self.device)))
+    
+    def get_action(self, state):
+        return self.forward(state).argmax().item()
 
 class StateActionDataset(Dataset):
 
@@ -174,26 +178,15 @@ if __name__ == "__main__":
 
         cloned_model = clone_agent(env, expert)
 
-        torch.save(cloned_model.state_dict, f"{OUTNAME_BASE}{cloned_model.name_modifier}.pth")
+        torch.save(cloned_model.state_dict(), f"{OUTNAME_BASE}{cloned_model.name_modifier}.pth")
     else:
         env = gym.make(ENV, render_mode = "human")
 
-        cloned_model = BehavioralClone()
+        cloned_model = BehavioralClone(torch.device('cuda'))
         cloned_model.load_state_dict(torch.load(f"{EVAL_NAME}"))
         cloned_model.eval()
-
-        state, _ = env.reset()
-        done = False
-
-        for _ in range(100):
-
-            steps = 0
-
-            while not done:
-                action = cloned_model.forward(state)
-                state, _, done, __, ___ = env.step(state)
-
-            print(f"died at {steps}")
+        
+        visualize_model(cloned_model)
             
 
 
