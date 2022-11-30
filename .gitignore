@@ -2,7 +2,5 @@
 *.pth
 .vscode
 *.pickle
-*models/
-*datasets/
 *.pyc
 __pycache__
