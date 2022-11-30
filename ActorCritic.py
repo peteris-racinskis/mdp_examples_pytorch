@@ -53,7 +53,7 @@ class ActorCriticModel(Module):
     
     def get_action(self, state):
         result = self.forward(state)
-        return result.sample().item()
+        return result.probs.argmax().item()
     
     def randomized_action(self, action_space, state, exploration_rate=0.001):
         if np.random.rand(1) < exploration_rate:
