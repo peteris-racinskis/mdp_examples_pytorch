@@ -180,7 +180,6 @@ if __name__ == "__main__":
 
         torch.save(cloned_model.state_dict(), f"{OUTNAME_BASE}{cloned_model.name_modifier}.pth")
     else:
-        env = gym.make(ENV, render_mode = "human")
 
         cloned_model = BehavioralClone(torch.device('cuda'))
         cloned_model.load_state_dict(torch.load(f"{EVAL_NAME}"))
