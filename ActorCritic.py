@@ -4,8 +4,10 @@ from torch.distributions import Categorical
 from torch.optim import Adam
 import torch.nn.functional as F
 import numpy as np
-
 import lovely_tensors as lt
+import gym
+
+from utils import  visualize_model
 
 lt.monkey_patch()
 
@@ -132,37 +134,39 @@ class ActorCriticModel(Module):
             print(f"Episode {ep} died at {avg_died_at} loss {avg_loss}")
 
 
-def train_model(model, env, outname=OUTNAME):
-    model.train()
-    opt = Adam(model.parameters(), lr=3e-2)
-    for ep in range(1000):
-        model.train_episode(env, opt, ep)
-        if ep % 100 == 0:
-            print(f"Saving model at epoch {ep}...")
-            torch.save(model.state_dict(), f"{outname}_ep{ep}.pth")
+def train_model(outname=OUTNAME):
 
-def evaluate_model(model: ActorCriticModel, env, inname=INNAME):
-    model.eval()
-    model.load_state_dict(torch.load(inname))
-    for ep in range(1000):
-        _, died_at = model.run_episode(env, True)
-        print(f"Died at {died_at}")
-
-    
-
-if __name__ == "__main__":
-    import gym
     env = gym.make(ENV)
     env.reset(seed=SEED)
+
     dev = torch.device('cpu')
     model = ActorCriticModel(
         env.observation_space.shape[0],
         env.action_space.n,
         device=dev
     )
+    model.train()
 
+    opt = Adam(model.parameters(), lr=3e-2)
+
+    for ep in range(1000):
+        model.train_episode(env, opt, ep)
+        if ep % 100 == 0:
+            print(f"Saving model at epoch {ep}...")
+            torch.save(model.state_dict(), f"{outname}_ep{ep}.pth")
+
+def evaluate_model(inname=INNAME):
+
+    dev = torch.device('cpu')
+    model = ActorCriticModel(device=dev)
+    model.eval()
+    model.load_state_dict(torch.load(inname))
+    
+    visualize_model(model)
+    
+
+if __name__ == "__main__":
     if TRAIN:
-        train_model(model, env)
+        train_model()
     else:
-        env = gym.make(ENV, render_mode="human")
-        evaluate_model(model, env)
+        evaluate_model()
