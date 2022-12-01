@@ -1,6 +1,6 @@
 import gym
 
-def visualize_model(model, envname="CartPole-v1", max_steps = 2000, episodes = 100, notebook = False):
+def visualize_model(model, envname="CartPole-v1", max_steps = 300, episodes = 100, notebook = False):
     if notebook:
         import matplotlib.pyplot as plt
         from IPython.display import clear_output

@@ -63,7 +63,8 @@ class ActorCriticModel(Module):
         return self.get_action(state), False
 
     def forward(self, x) -> ActorCriticResult:
-        self.last_input = x
+        if not isinstance(x, torch.Tensor):
+            x = torch.Tensor(x)
         hidden = self.hidden(x)
         logits = self.actor_head(hidden)
         value = self.critic_head(hidden)
