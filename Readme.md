@@ -1,9 +1,32 @@
 ## MDP reference - simple examples of agents in a Markov Decision Process
 
-### QMatrix - an implementation of the classic Bellman equation through a fully enumerated reward matrix
+For content, refer to *mdp_examples.ipynb*.
 
-The simplest, "brute force" approach to reinforcement learning. Construct a tensor the dimensions of which correspond to discretized versions of the states and discrete action set. Every value corresponds to the expected reward. Output an action based on maximum expected reward at any given state. Iteratively optimize the values in the tensor by repeatedly sampling the environment and using Bellman's update rule. 
+### Installation:
 
-### ActorCritic - a simple deep learning approach using the Advantage Actor-Critic architecture
+Preferably set up a virtual environment and run
 
-### BehavioralClone - an imitation learning approach
+```{bash}
+pip install -r requirements.txt
+pip install torch --extra-index-url https://download.pytorch.org/whl/cu116 # if using a specific version of cuda
+```
+
+### Execution:
+
+To train or evaluate a model individually, run
+
+```{bash}
+python QMatrix.py
+# or
+python ActorCritic.py
+# or
+python BehaviouralClone.py
+```
+
+Configuration parameters are simply set at the top of every script.
+
+To run the jupyter notebook:
+
+```{bash}
+jupyter notebook
+```

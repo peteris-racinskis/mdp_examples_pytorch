@@ -1,0 +1,4 @@
+gym
+gym[classic_control]
+notebook
+lovely_tensors
